@@ -1,0 +1,5 @@
+/vendor
+/runtime/app-cache
+/docker
+composer.lock
+.idea/

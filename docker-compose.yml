@@ -1,0 +1,49 @@
+version: "3.1"
+services:
+
+  nginx:
+    image: tutum/nginx
+    ports:
+      - "80:80"
+    links:
+      - php-fpm
+    volumes:
+      - ./nginx/default:/etc/nginx/sites-available/default
+      - ./nginx/default:/etc/nginx/sites-enabled/default
+
+      - ./logs/nginx/access.log:/var/log/nginx/access.log
+      - ./logs/nginx/error.log:/var/log/nginx/error.log
+
+  php-fpm:
+    container_name: php-fpm
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./:/application/public
+    depends_on:
+      - db
+
+
+  db:
+    image: mysql:latest
+    container_name: mysql
+    # Подключаем к общей сети с другими контейнерами
+#    networks:
+#      - default
+    # Показываем наружу порт
+    ports:
+      - "3306:3306"
+    # Задаем параметры для инициализации БД
+    environment:
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'root'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: '123'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: '123'
+    # Линкуем внешнюю папку для хранения БД
+    volumes:
+      - "./var/lib/mysql:/var/lib/mysql"
